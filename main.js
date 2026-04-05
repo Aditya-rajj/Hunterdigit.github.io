@@ -36,6 +36,23 @@ const rejectionMessages = [
 // 🚀 SYSTEM LOGIC (DO NOT TOUCH BELOW THIS LINE)
 // ==========================================
 
+// --- HAPTIC FEEDBACK ENGINE ---
+const haptic = {
+    light: () => { if (navigator.vibrate) navigator.vibrate(40); },
+    success: () => { if (navigator.vibrate) navigator.vibrate([70, 50, 70]); },
+    error: () => { if (navigator.vibrate) navigator.vibrate([50, 80, 50, 80, 50]); }
+};
+
+// --- GLOBAL INSTANT HAPTIC LISTENER ---
+// This listens for the exact millisecond a finger touches the screen
+document.addEventListener('pointerdown', (e) => {
+    // If the user touches a button, link, bento widget, or input field -> vibrate!
+    const interactable = e.target.closest('button, a, .bento-widget, input, .back-btn');
+    if (interactable) {
+        haptic.light();
+    }
+});
+
 let activeToolId = ''; 
 
 const warningIconSVG = `<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>`;
@@ -52,9 +69,11 @@ function verifyToken() {
     const errorDiv = document.getElementById('modalError');
     
     if (inputToken === VALID_TOKEN) {
+        haptic.success(); // Double buzz on success
         document.getElementById('warningModal').style.opacity = '0';
         setTimeout(() => { document.getElementById('warningModal').style.display = 'none'; }, 400);
     } else {
+        haptic.error(); // Angry buzz on wrong token
         const randomMsg = rejectionMessages[Math.floor(Math.random() * rejectionMessages.length)];
         errorDiv.style.display = 'block';
         errorDiv.innerText = randomMsg;
@@ -114,6 +133,7 @@ async function performLookup() {
     const loaderText = document.querySelector('.loader-text');
 
     function showError(message) {
+        haptic.error(); // Buzz on error
         resultsDiv.style.display = 'block';
         resultsDiv.innerHTML = `
             <div class="glass-error compact-error appear-anim">
@@ -148,6 +168,7 @@ async function performLookup() {
     try {
         const data = await fetchTargetData(activeToolId, inputValue); 
         displayResults(data); 
+        haptic.success(); // Satisfying double buzz when data arrives
         
         setTimeout(() => {
             resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
