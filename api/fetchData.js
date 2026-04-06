@@ -1,49 +1,53 @@
-// File: api/fetchData.js
 export default async function handler(req, res) {
-    // 1. Grab the tool requested and the target data from your frontend
     const { tool, query } = req.query;
+    
+    // Grabs your secret key from Vercel Environment Variables
+    const API_KEY = process.env.PROPORTAL_KEY; 
 
-    // 2. Fetch your secret API key from Vercel's Environment Variables
-    // (If it fails to find the hidden key, it defaults to your current one for safety)
-    const API_KEY = process.env.PROPORTAL_KEY || "1kSubscriber";
+    if (!API_KEY) {
+        return res.status(500).json({ error: "Missing API Key in Vercel settings" });
+    }
 
-    // 3. The Routing Dictionary
-    const API_ROUTES = {
-        'number': `https://paid.proportalx.workers.dev/number?key=${API_KEY}&num=`,
-        'vehicle': `https://paid.proportalx.workers.dev/vehicle?key=${API_KEY}&rc=`,
-        'aadhar': `https://paid.proportalx.workers.dev/aadhar?key=${API_KEY}&aadhar=`,
-        'family': `https://paid.proportalx.workers.dev/family?key=${API_KEY}&id=`,
-        'tg': `https://paid.proportalx.workers.dev/tg?key=${API_KEY}&username=`,
-        'ifsc': `https://paid.proportalx.workers.dev/ifsc?key=${API_KEY}&code=`,
-        'ip': `https://paid.proportalx.workers.dev/ip?key=${API_KEY}&ip=`,
-        'pincode': `https://paid.proportalx.workers.dev/pincode?key=${API_KEY}&pincode=`,
-        'gst': `https://paid.proportalx.workers.dev/gst?key=${API_KEY}&gst=`
-    };
+    let targetUrl = '';
 
-    const baseUrl = API_ROUTES[tool];
-
-    // Security check: Make sure a valid tool was requested
-    if (!baseUrl) {
-        return res.status(400).json({ error: "Invalid tool or endpoint requested." });
+    // Routes the request to the NEW paid endpoints
+    switch (tool) {
+        case 'number':
+            targetUrl = `https://paid.proportalxc.workers.dev/number?key=${API_KEY}&num=${query}`;
+            break;
+        case 'vehicle':
+            targetUrl = `https://paid.proportalxc.workers.dev/vehicle?key=${API_KEY}&rc=${query}`;
+            break;
+        case 'aadhar':
+            targetUrl = `https://paid.proportalxc.workers.dev/aadhar?key=${API_KEY}&uid=${query}`;
+            break;
+        case 'tg':
+            targetUrl = `https://paid.proportalxc.workers.dev/tg?key=${API_KEY}&user=${query}`;
+            break;
+        case 'family':
+            targetUrl = `https://paid.proportalxc.workers.dev/family?key=${API_KEY}&id=${query}`;
+            break;
+        case 'ifsc':
+            targetUrl = `https://paid.proportalxc.workers.dev/ifsc?key=${API_KEY}&code=${query}`;
+            break;
+        case 'ip':
+            targetUrl = `https://paid.proportalxc.workers.dev/ip?key=${API_KEY}&ip=${query}`;
+            break;
+        case 'pincode':
+            targetUrl = `https://paid.proportalxc.workers.dev/pincode?key=${API_KEY}&pin=${query}`;
+            break;
+        case 'gst':
+            targetUrl = `https://paid.proportalxc.workers.dev/gst?key=${API_KEY}&gstin=${query}`;
+            break;
+        default:
+            return res.status(400).json({ error: "Invalid tool selected." });
     }
 
     try {
-        // 4. Make the Server-to-Server request (This completely bypasses CORS limitations!)
-        const targetUrl = baseUrl + encodeURIComponent(query);
-        const response = await fetch(targetUrl);
-        
-        const data = await response.json();
-
-        // If the API returns a failed response, pass that back
-        if (!response.ok) {
-            return res.status(response.status).json(data);
-        }
-
-        // 5. Send the clean data back to your frontend UI
-        return res.status(200).json(data);
-
+        const fetchResponse = await fetch(targetUrl);
+        const data = await fetchResponse.json();
+        res.status(200).json(data);
     } catch (error) {
-        console.error("Vercel Backend Fetch Error:", error);
-        return res.status(500).json({ error: "Failed to connect to the intelligence database." });
+        res.status(500).json({ error: "Failed to connect to Provider API" });
     }
 }
