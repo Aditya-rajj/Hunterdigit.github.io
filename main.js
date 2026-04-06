@@ -8,8 +8,8 @@ const NUMBER_PROTECTION_MESSAGE = "You really typed This number...and expected s
 
 const loaderMessages = [
     "Authenticating...",
-    "Fatching public info",
-    "Privacy is a myth",
+    "Fatching public info...",
+    "Privacy is a myth Buddy...",
     "Hold My Beer...",
     "Tracing Node...",
     "Almost There..."
