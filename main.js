@@ -4,12 +4,12 @@
 
 const VALID_TOKEN = "INCOGNITO";
 const BLOCKED_NUMBERS = ["8252584063", "8298709184" , "7050644110"];
-const NUMBER_PROTECTION_MESSAGE = "You really typed This number...and expected success? Interesting."; 
+const NUMBER_PROTECTION_MESSAGE = "You really typed This number...and expected success? Interesting. don't try again this number is protected by Mind your business encryption, now get out"; 
 
 const loaderMessages = [
     "Authenticating...",
-    "Fetching Data...",
-    "Bypassing Proxy...",
+    "Fatching public info",
+    "Privacy is a myth",
     "Hold My Beer...",
     "Tracing Node...",
     "Almost There..."
