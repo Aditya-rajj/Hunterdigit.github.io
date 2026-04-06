@@ -1,16 +1,14 @@
 export default async function handler(req, res) {
+    // 1. Get the tool requested and the target data from the frontend
     const { tool, query } = req.query;
     
-    // Grabs your secret key from Vercel Environment Variables
-    const API_KEY = process.env.PROPORTAL_KEY; 
-
-    if (!API_KEY) {
-        return res.status(500).json({ error: "Missing API Key in Vercel settings" });
-    }
+    // 2. Grab your secret API Key from Vercel Environment Variables
+    // (Defaults to 'my' if the environment variable isn't set yet)
+    const API_KEY = process.env.PROPORTAL_KEY || 'my'; 
 
     let targetUrl = '';
 
-    // Routes the request to the NEW paid endpoints
+    // 3. ROUTING ENGINE: Exact endpoint mapping based on your API structure
     switch (tool) {
         case 'number':
             targetUrl = `https://paid.proportalxc.workers.dev/number?key=${API_KEY}&num=${query}`;
@@ -19,10 +17,10 @@ export default async function handler(req, res) {
             targetUrl = `https://paid.proportalxc.workers.dev/vehicle?key=${API_KEY}&rc=${query}`;
             break;
         case 'aadhar':
-            targetUrl = `https://paid.proportalxc.workers.dev/aadhar?key=${API_KEY}&uid=${query}`;
+            targetUrl = `https://paid.proportalxc.workers.dev/aadhar?key=${API_KEY}&aadhar=${query}`;
             break;
         case 'tg':
-            targetUrl = `https://paid.proportalxc.workers.dev/tg?key=${API_KEY}&user=${query}`;
+            targetUrl = `https://paid.proportalxc.workers.dev/tg?key=${API_KEY}&username=${query}`;
             break;
         case 'family':
             targetUrl = `https://paid.proportalxc.workers.dev/family?key=${API_KEY}&id=${query}`;
@@ -34,20 +32,31 @@ export default async function handler(req, res) {
             targetUrl = `https://paid.proportalxc.workers.dev/ip?key=${API_KEY}&ip=${query}`;
             break;
         case 'pincode':
-            targetUrl = `https://paid.proportalxc.workers.dev/pincode?key=${API_KEY}&pin=${query}`;
+            targetUrl = `https://paid.proportalxc.workers.dev/pincode?key=${API_KEY}&pincode=${query}`;
             break;
         case 'gst':
-            targetUrl = `https://paid.proportalxc.workers.dev/gst?key=${API_KEY}&gstin=${query}`;
+            targetUrl = `https://paid.proportalxc.workers.dev/gst?key=${API_KEY}&gst=${query}`;
             break;
         default:
-            return res.status(400).json({ error: "Invalid tool selected." });
+            return res.status(400).json({ error: "Invalid Intelligence Tool Selected" });
     }
 
+    // 4. FETCH THE DATA AND RETURN TO FRONTEND
     try {
         const fetchResponse = await fetch(targetUrl);
+        
+        // Handle API server errors
+        if (!fetchResponse.ok) {
+            throw new Error(`Upstream API failed with status: ${fetchResponse.status}`);
+        }
+
         const data = await fetchResponse.json();
+        
+        // Send the JSON data back to your glowing Bento Grid
         res.status(200).json(data);
+        
     } catch (error) {
-        res.status(500).json({ error: "Failed to connect to Provider API" });
+        console.error("Backend Error:", error);
+        res.status(500).json({ error: "Intelligence Node Offline or Unreachable." });
     }
 }
