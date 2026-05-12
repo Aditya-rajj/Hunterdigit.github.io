@@ -8,34 +8,34 @@ export default async function handler(req, res) {
 
     let targetUrl = '';
 
-    // 3. ROUTING ENGINE: Exact endpoint mapping based on your API structure
+    // 3. ROUTING ENGINE: Exact endpoint mapping based on your new API structure
     switch (tool) {
         case 'number':
-            targetUrl = `https://paid.proportalxc.workers.dev/number?key=${API_KEY}&num=${query}`;
+            targetUrl = `https://paid.proportalx.workers.dev/number?key=${API_KEY}&num=${query}`;
             break;
         case 'vehicle':
-            targetUrl = `https://paid.proportalxc.workers.dev/vehicle?key=${API_KEY}&rc=${query}`;
+            targetUrl = `https://paid.proportalx.workers.dev/vehicle?key=${API_KEY}&rc=${query}`;
             break;
         case 'aadhar':
-            targetUrl = `https://paid.proportalxc.workers.dev/aadhar?key=${API_KEY}&aadhar=${query}`;
+            targetUrl = `https://paid.proportalx.workers.dev/aadhar?key=${API_KEY}&aadhar=${query}`;
             break;
         case 'tg':
-            targetUrl = `https://paid.proportalxc.workers.dev/tg?key=${API_KEY}&username=${query}`;
+            targetUrl = `https://paid.proportalx.workers.dev/tg?key=${API_KEY}&username=${query}`;
             break;
         case 'family':
-            targetUrl = `https://paid.proportalxc.workers.dev/family?key=${API_KEY}&id=${query}`;
+            targetUrl = `https://paid.proportalx.workers.dev/family?key=${API_KEY}&id=${query}`;
             break;
         case 'ifsc':
-            targetUrl = `https://paid.proportalxc.workers.dev/ifsc?key=${API_KEY}&code=${query}`;
+            targetUrl = `https://paid.proportalx.workers.dev/ifsc?key=${API_KEY}&code=${query}`;
             break;
         case 'ip':
-            targetUrl = `https://paid.proportalxc.workers.dev/ip?key=${API_KEY}&ip=${query}`;
+            targetUrl = `https://paid.proportalx.workers.dev/ip?key=${API_KEY}&ip=${query}`;
             break;
         case 'pincode':
-            targetUrl = `https://paid.proportalxc.workers.dev/pincode?key=${API_KEY}&pincode=${query}`;
+            targetUrl = `https://paid.proportalx.workers.dev/pincode?key=${API_KEY}&pincode=${query}`;
             break;
         case 'gst':
-            targetUrl = `https://paid.proportalxc.workers.dev/gst?key=${API_KEY}&gst=${query}`;
+            targetUrl = `https://paid.proportalx.workers.dev/gst?key=${API_KEY}&gst=${query}`;
             break;
         default:
             return res.status(400).json({ error: "Invalid Intelligence Tool Selected" });
