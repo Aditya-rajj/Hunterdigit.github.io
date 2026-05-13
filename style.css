@@ -19,7 +19,7 @@
 * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; -webkit-font-smoothing: antialiased; -webkit-tap-highlight-color: transparent; }
 
 h1, h2, h3, .gradient-text { letter-spacing: -0.03em; }
-.bento-widget p, .content-container p, .result-value, .changelog-slide p { line-height: 1.6; letter-spacing: 0.01em; color: rgba(255, 255, 255, 0.65); }
+.bento-widget p, .content-container p, .changelog-slide p { line-height: 1.6; letter-spacing: 0.01em; color: rgba(255, 255, 255, 0.65); }
 
 body, .bento-widget, .apple-btn, .glass-panel, .dashboard-header { user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
 input, #results { user-select: text; -webkit-user-select: text; }
@@ -86,75 +86,82 @@ body {
 .modal-input-wrapper input { width: 100%; padding: 1.2rem 1.2rem 1.2rem 3.2rem; border-radius: 14px; background: rgba(0, 0, 0, 0.4); border: 1px solid var(--glass-border); color: var(--text-primary); font-size: 1rem; outline: none; transition: all 0.3s ease; }
 .modal-input-wrapper input:focus { border-color: var(--accent-color); background: rgba(0,0,0,0.8); box-shadow: 0 0 15px rgba(10,132,255,0.2); }
 .modal-error { color: var(--danger-color); font-size: 0.9rem; font-weight: 500; margin-top: -5px; margin-bottom: 15px; display: none; line-height: 1.4; text-align: center; padding: 0 10px; }
-/* 🧩 BENTO GRID HOMEPAGE & RESULTS */
+/* 🧩 BENTO GRID HOMEPAGE */
 .bento-container { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; width: 100%; max-width: 1000px; margin: 0 auto 2rem auto; }
 
-.bento-widget, .result-widget {
+.bento-widget {
     padding: 1.2rem; display: flex; flex-direction: column; align-items: flex-start; justify-content: space-between;
     position: relative; overflow: hidden; background: linear-gradient(145deg, rgba(255,255,255,0.04) 0%, rgba(0,0,0,0.4) 100%);
     transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.3s ease, border-color 0.3s ease;
-    border: 1px solid var(--glass-border); border-radius: 20px;
-}
-.bento-widget { cursor: pointer; }
-
-/* ✨ UPGRADED RESULTS LAYOUT: Sleek Horizontal Rows */
-.result-widget { 
-    opacity: 0; transform: translateY(15px); animation: fadeUpSmooth 0.4s ease forwards; 
-    flex-direction: row; align-items: center; justify-content: flex-start; gap: 1.2rem; padding: 1.2rem;
+    border: 1px solid var(--glass-border); border-radius: 20px; cursor: pointer;
 }
 
-.bento-widget::before, .result-widget::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: radial-gradient(800px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(10, 132, 255, 0.1), transparent 40%); opacity: 0; transition: opacity 0.3s ease; pointer-events: none; }
-.bento-widget:hover::before, .result-widget:hover::before { opacity: 1; }
-.bento-widget:hover, .result-widget:hover { transform: translateY(-4px); border-color: rgba(10, 132, 255, 0.4); box-shadow: 0 12px 40px rgba(0, 0, 0, 0.8), 0 0 30px rgba(10, 132, 255, 0.15); }
+.bento-widget::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: radial-gradient(800px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(10, 132, 255, 0.1), transparent 40%); opacity: 0; transition: opacity 0.3s ease; pointer-events: none; }
+.bento-widget:hover::before { opacity: 1; }
+.bento-widget:hover { transform: translateY(-4px); border-color: rgba(10, 132, 255, 0.4); box-shadow: 0 12px 40px rgba(0, 0, 0, 0.8), 0 0 30px rgba(10, 132, 255, 0.15); }
 .bento-widget:active { transform: scale(0.96); }
 
 .span-2 { grid-column: span 2; flex-direction: row; align-items: center; }
 
-/* 🛡️ VIEW TRANSITION SYNC */
+/* 🛡️ VIEW TRANSITION SYNC: Keeps icons matched between screens */
 .icon-plate, .tool-active-icon { 
     display: flex; align-items: center; justify-content: center; 
     width: 44px; height: 44px; border-radius: 14px; 
     background: rgba(10, 132, 255, 0.15); border: 1px solid rgba(10, 132, 255, 0.3); 
     flex-shrink: 0; box-shadow: inset 0 2px 10px rgba(10, 132, 255, 0.2); 
-    transition: transform 0.3s ease; 
+    transition: transform 0.3s ease; contain: paint;
 }
-
 .bento-widget .icon-plate { margin-bottom: 1rem; }
 .span-2 .icon-plate { margin-bottom: 0; margin-right: 1.2rem; }
-.tool-header .tool-active-icon { margin-bottom: 0; }
-
-/* Remove margin for results row layout */
-.result-widget .icon-plate { margin-bottom: 0 !important; margin-right: 0 !important; }
-
 .bento-widget:hover .icon-plate { transform: scale(1.05); }
 
 .widget-text { display: flex; flex-direction: column; flex-grow: 1; z-index: 1; justify-content: center;}
 .bento-widget h3 { font-size: 1.1rem; font-weight: 700; color: #ffffff; margin-bottom: 0.2rem; text-shadow: 0 0 10px rgba(255,255,255,0.1); }
 .bento-widget p { font-size: 0.8rem; font-weight: 500; }
 
-.result-widget .widget-text h3 { color: var(--text-secondary); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0; }
-.result-widget .widget-text p.result-value { color: var(--text-primary); font-size: 1.05rem; font-weight: 600; word-break: break-word; margin-top: 0.3rem; white-space: normal; line-height: 1.4; }
-.result-widget.span-2 { flex-direction: row; align-items: center; }
-
 .widget-arrow { color: rgba(255,255,255,0.15); display: flex; align-items: center; justify-content: center; transition: transform 0.3s ease, color 0.3s ease; }
 .bento-widget.span-2:hover .widget-arrow { transform: translateX(5px); color: var(--accent-color); }
+
+/* ✨ UPGRADED RESULTS LAYOUT: Flexible, Mobile-Perfect Vertical Stack */
+.result-widget { 
+    padding: 1.2rem; display: flex; flex-direction: column; align-items: flex-start; justify-content: flex-start;
+    position: relative; overflow: hidden; background: linear-gradient(145deg, rgba(255,255,255,0.04) 0%, rgba(0,0,0,0.4) 100%);
+    border: 1px solid var(--glass-border); border-radius: 20px;
+    height: auto; gap: 0.5rem;
+    opacity: 0; transform: translateY(15px); animation: fadeUpSmooth 0.4s ease forwards; 
+}
+.result-widget:hover { border-color: rgba(10, 132, 255, 0.4); box-shadow: 0 12px 40px rgba(0, 0, 0, 0.8), 0 0 30px rgba(10, 132, 255, 0.15); }
+
+.result-widget .icon-plate { margin-bottom: 0.5rem !important; margin-right: 0 !important; width: 38px; height: 38px; }
+.result-widget .icon-plate svg { width: 18px !important; height: 18px !important; }
+
+.result-widget .widget-text { width: 100%; display: flex; flex-direction: column; justify-content: flex-start; }
+.result-widget .widget-text h3 { color: var(--text-secondary); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.2rem; }
+.result-widget .widget-text p.result-value { 
+    color: var(--text-primary); font-size: 1rem; font-weight: 600; 
+    line-height: 1.5; word-wrap: break-word; overflow-wrap: anywhere; margin-top: 0;
+}
+/* Revert span-2 squish on mobile results */
+.result-widget.span-2 { flex-direction: column; align-items: flex-start; }
 
 /* --- SECTION DIVIDERS --- */
 .section-divider { width: 100%; max-width: 800px; margin: 1.5rem auto; display: flex; align-items: center; justify-content: center; position: relative; }
 .section-divider::before, .section-divider::after { content: ''; flex: 1; height: 1px; background: var(--glass-border); }
 .section-divider span { padding: 0 1rem; color: var(--text-secondary); font-size: 0.75rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; text-shadow: 0 0 10px rgba(255,255,255,0.1); }
 
-/* --- REVERTED: CLEAN TOOL VIEW & SPACING FIX --- */
-.tool-header { display: flex; align-items: center; margin-bottom: 1rem; gap: 15px; }
+/* --- CLEAN TOOL VIEW --- */
+.tool-header { display: flex; align-items: center; margin-bottom: 2rem; gap: 15px; }
 .back-btn { background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); color: var(--text-primary); padding: 0.6rem; border-radius: 12px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.2s ease; flex-shrink: 0; }
 .back-btn:hover { background: rgba(255,255,255,0.1); }
 .back-btn:active { background: rgba(255,255,255,0.15); transform: scale(0.95); }
 .tool-title { font-size: 1.5rem; font-weight: 800; color: var(--text-primary); white-space: nowrap;}
+.tool-header .tool-active-icon { margin-bottom: 0; }
 
 .search-container { padding: 2rem; width: 100%; max-width: 650px; margin-bottom: 1rem; display: flex; flex-direction: column; gap: 1.2rem; }
 .input-wrapper { position: relative; display: flex; align-items: center; }
 .input-icon { position: absolute; left: 1.2rem; color: var(--text-secondary); display: flex; }
 
+/* Fluid Depth Inputs */
 input[type="tel"], input[type="text"], input[type="password"] { 
     width: 100%; padding: 1.4rem 1.4rem 1.4rem 3.5rem; border-radius: 16px; 
     background: rgba(0, 0, 0, 0.2); border: 1px solid rgba(255, 255, 255, 0.05); 
@@ -230,7 +237,6 @@ input:focus {
     .bento-container { grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
     .bento-widget { padding: 1.8rem; }
     
-    /* Strict Sync */
     .icon-plate, .tool-active-icon { width: 54px; height: 54px; }
     .icon-plate svg, .tool-active-icon svg { width: 26px !important; height: 26px !important; }
     
@@ -239,6 +245,10 @@ input:focus {
     .gradient-text { font-size: 4rem; } 
     .dashboard-header { margin-top: 3rem; margin-bottom: 3rem; }
     .search-container { max-width: 800px; padding: 2.5rem; }
+    
+    /* Desktop results can stay horizontal if space permits */
+    .result-widget { flex-direction: row; align-items: flex-start; justify-content: flex-start; padding: 1.5rem; }
+    .result-widget .icon-plate { margin-bottom: 0 !important; margin-right: 1.2rem !important; }
 }
 
 /* ========================================== */
@@ -256,14 +266,13 @@ input:focus {
     .bento-container { grid-template-columns: repeat(2, 1fr); gap: 0.8rem; }
     .span-2 { grid-column: span 2; }
     
-    .bento-widget, .result-widget { padding: 1.2rem 1rem; }
+    .bento-widget { padding: 1.2rem 1rem; }
     
-    /* Strict Sync for Flying Icons on Mobile */
+    /* Sync for Flying Icons on Mobile */
     .icon-plate, .tool-active-icon { width: 38px; height: 38px; border-radius: 10px; }
     .icon-plate svg, .tool-active-icon svg { width: 18px !important; height: 18px !important; }
     .bento-widget .icon-plate { margin-bottom: 0.8rem;}
     .span-2 .icon-plate { margin-right: 1rem; margin-bottom: 0;}
-    .result-widget.span-2 .icon-plate { margin-bottom: 0 !important; margin-right: 0 !important; }
     
     .input-icon svg, .back-btn svg { width: 18px !important; height: 18px !important; }
     .modal-header-icon svg { width: 42px !important; height: 42px !important; } 
@@ -272,7 +281,7 @@ input:focus {
     .bento-widget p { font-size: 0.75rem; }
     
     .search-container { padding: 1.2rem; margin-bottom: 1rem; border-radius: 16px;}
-    .tool-header { padding-bottom: 0.5rem; margin-bottom: 1rem; justify-content: flex-start; }
+    .tool-header { padding-bottom: 0; margin-bottom: 1rem; justify-content: flex-start; }
     .tool-title { font-size: 1.3rem; }
     .back-btn { padding: 0.5rem; border-radius: 10px; }
     

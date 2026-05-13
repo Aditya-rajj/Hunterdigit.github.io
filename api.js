@@ -31,7 +31,7 @@ function displayResults(data, toolId, inputValue) {
     function parseData(obj, container) {
         for (const [key, value] of Object.entries(obj)) {
             const kStr = key.toLowerCase();
-            let vStr = (typeof value === 'string') ? value.trim() : String(value);
+            const vStr = (typeof value === 'string') ? value.trim() : String(value);
             const vStrLow = vStr.toLowerCase();
             
             if (kStr.includes('developer') || kStr.includes('proportalx') || vStrLow.includes('@proportalx') || kStr.includes('channel') || vStrLow === '@') continue;
@@ -51,12 +51,10 @@ function displayResults(data, toolId, inputValue) {
                 fDiv.appendChild(sGrid);
                 container.appendChild(fDiv);
             } else {
-                
                 const isNumericKey = !isNaN(key) && parseInt(key) >= 0;
                 let fKey = key.replace(/([A-Z])/g, ' $1').toUpperCase().replace(/_/g, ' ');
                 let finalValue = (value !== null && value !== '') ? value : 'N/A';
 
-                // ✨ SMART PARSER: Automatically splits array strings like "Full Name: Aditya" into Title and Value
                 if (isNumericKey && typeof value === 'string' && value.includes(':')) {
                     const parts = value.split(':');
                     fKey = parts.shift().trim().toUpperCase(); 
@@ -69,8 +67,7 @@ function displayResults(data, toolId, inputValue) {
                 const isLong = finalValue.length > 25 || searchString.includes('address') || searchString.includes('location') || searchString.includes('msg') || searchString.includes('desc') || searchString.includes('name') || searchString.includes('email');
                 const spanClass = isLong ? 'span-2' : '';
                 
-                // ✨ INTELLIGENT ICON ROUTING: Scans the final parsed text to assign the perfect icon
-                let svgIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>`; // Default Info
+                let svgIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>`; 
                 
                 if (searchString.includes('name') || searchString.includes('father') || searchString.includes('owner') || searchString.includes('gender')) {
                     svgIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>`;
