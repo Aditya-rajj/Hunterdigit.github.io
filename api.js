@@ -1,27 +1,29 @@
-// File: api.js (Frontend Fetch & Bento Display Engine)
-
 async function fetchTargetData(toolId, inputValue) {
     try {
         const response = await fetch(`/api/fetchData?tool=${toolId}&query=${encodeURIComponent(inputValue)}`);
-        const data = await response.json();
+        const text = await response.text(); 
         
+        if (text.trim().startsWith('<')) {
+            throw new Error("API Route Missing. Ensure you are running this app on your live Vercel deployment.");
+        }
+
+        const data = JSON.parse(text);
         if (!response.ok) {
             throw new Error(data.error || `HTTP Error: ${response.status}`);
         }
         return data;
     } catch (error) {
-        throw new Error(`Server Connection Failed: ${error.message}`);
+        throw new Error(`${error.message}`);
     }
 }
 
-// --- INTELLIGENT BENTO RESULTS DISPLAY ENGINE ---
-function displayResults(data) {
+function displayResults(data, toolId, inputValue) {
     const resultsDiv = document.getElementById('results');
     resultsDiv.style.display = 'block';
     resultsDiv.innerHTML = '';
     
     const mainGrid = document.createElement('div');
-    mainGrid.className = 'bento-container'; // Uses the same 2-column CSS grid as the Home Screen!
+    mainGrid.className = 'bento-container'; 
     resultsDiv.appendChild(mainGrid);
     
     let delay = 0;
@@ -32,7 +34,6 @@ function displayResults(data) {
             const vStr = (typeof value === 'string') ? value.trim() : '';
             const vStrLow = vStr.toLowerCase();
             
-            // Skip promotional elements injected by third-party APIs
             if (kStr.includes('developer') || kStr.includes('proportalx') || vStrLow.includes('@proportalx') || kStr.includes('channel') || vStrLow === '@') continue;
 
             const isNumericKey = !isNaN(key) && parseInt(key) >= 0;
@@ -52,12 +53,10 @@ function displayResults(data) {
                 fDiv.appendChild(sGrid);
                 container.appendChild(fDiv);
             } else {
-                // 1. DYNAMIC WIDTH LOGIC: Make addresses and long data take up the full screen width (span-2)
-                const isLong = vStr.length > 25 || kStr.includes('address') || kStr.includes('location') || kStr.includes('msg') || kStr.includes('desc');
+                const isLong = vStr.length > 25 || kStr.includes('address') || kStr.includes('location') || kStr.includes('msg') || kStr.includes('desc') || kStr.includes('name') || kStr.includes('email');
                 const spanClass = isLong ? 'span-2' : '';
                 
-                // 2. DYNAMIC ICON ENGINE: Assign beautiful SVGs based on data type
-                let svgIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>`; // Default Info Icon
+                let svgIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>`; 
                 
                 if(kStr.includes('name') || kStr.includes('father') || kStr.includes('owner')) {
                     svgIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>`;
@@ -71,16 +70,17 @@ function displayResults(data) {
                     svgIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>`;
                 } else if(kStr.includes('bank') || kStr.includes('ifsc')) {
                     svgIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>`;
+                } else if(kStr.includes('email') || kStr.includes('mail')) {
+                    svgIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>`;
                 }
 
-                // 3. GENERATE BENTO CARD
                 const card = document.createElement('div');
-                card.className = `result-widget ${spanClass}`;
+                card.className = `result-widget ${spanClass} appear-anim`;
                 card.style.animationDelay = `${delay}s`;
                 delay += 0.02; 
                 
                 card.innerHTML = `
-                    <div class="icon-plate">${svgIcon}</div>
+                    <div class="icon-plate glow-icon">${svgIcon}</div>
                     <div class="widget-text">
                         <h3>${fKey}</h3>
                         <p class="result-value">${(value !== null && value !== '') ? value : 'N/A'}</p>
@@ -91,4 +91,23 @@ function displayResults(data) {
         }
     }
     parseData(data, mainGrid);
+
+    const exportBtn = document.createElement('button');
+    exportBtn.className = 'apple-btn extract-btn appear-anim';
+    exportBtn.style.animationDelay = `${delay + 0.1}s`;
+    exportBtn.style.margin = '1.5rem auto 3rem auto';
+    exportBtn.style.display = 'flex';
+    exportBtn.style.maxWidth = '300px';
+    exportBtn.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 10px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg> EXPORT JSON`;
+    
+    exportBtn.onclick = () => {
+        if (navigator.vibrate) navigator.vibrate(50);
+        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data, null, 4));
+        const dlAnchorElem = document.createElement('a');
+        dlAnchorElem.setAttribute("href", dataStr);
+        dlAnchorElem.setAttribute("download", `DH_${toolId.toUpperCase()}_${inputValue}.json`);
+        dlAnchorElem.click();
+    };
+    
+    resultsDiv.appendChild(exportBtn);
 }

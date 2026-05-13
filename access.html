@@ -3,102 +3,93 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#000000">
+    <meta name="theme-color" content="#09090b">
     <meta name="mobile-web-app-capable" content="yes">
     
     <title>Get Access | Digit-Hunter</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css"> 
+    
+    <link rel="stylesheet" href="style.css?v=3.7"> 
     
     <style>
-        /* Specific tweaks for the reading layout to match the theme */
-        .content-container {
-            width: 100%;
-            max-width: 750px;
-            margin-bottom: 3rem;
-            padding: 2.5rem;
-            text-align: left;
-        }
+        .content-container { width: 100%; max-width: 750px; margin-bottom: 3rem; padding: 1.5rem; text-align: left; }
         
-        .token-display-box {
-            background: rgba(0, 0, 0, 0.6);
-            border: 1px solid var(--glass-border);
-            padding: 2rem;
-            border-radius: 20px;
-            margin-bottom: 2.5rem;
-            text-align: center;
-            box-shadow: inset 0 2px 15px rgba(0,0,0,0.8);
-        }
+        /* Captcha Styles */
+        #captchaBox { text-align: center; padding: 1.5rem 1rem; transition: all 0.4s ease; }
+        .captcha-title { font-size: 1.4rem; font-weight: 800; margin-bottom: 0.5rem; }
+        .captcha-desc { color: var(--text-secondary); margin-bottom: 2rem; font-size: 0.85rem; }
+        .captcha-question { font-size: 1.1rem; font-weight: 700; color: #fff; margin-bottom: 1.5rem; padding: 1rem; background: rgba(255,255,255,0.05); border-radius: 12px; border: 1px solid var(--glass-border); box-shadow: inset 0 0 15px rgba(255,255,255,0.02);}
+        .captcha-options { display: flex; gap: 0.8rem; flex-wrap: wrap; justify-content: center; margin-bottom: 1rem; }
+        .captcha-btn { background: rgba(0,0,0,0.5); border: 1px solid var(--glass-border); padding: 0.8rem 1.2rem; border-radius: 12px; color: white; cursor: pointer; transition: all 0.2s; font-size: 0.9rem; font-weight: 600; flex: 1 1 calc(50% - 0.8rem); min-width: 120px; box-shadow: 0 4px 15px rgba(0,0,0,0.4); }
+        .captcha-btn:hover { background: rgba(10, 132, 255, 0.2); border-color: var(--accent-color); transform: translateY(-2px); box-shadow: 0 4px 20px rgba(10, 132, 255, 0.3); }
+        .captcha-btn:active { transform: scale(0.95); }
+        
+        .shake-err { animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both; border-color: var(--danger-color) !important; background: rgba(255, 69, 58, 0.2) !important; box-shadow: 0 0 20px rgba(255, 69, 58, 0.4) !important;}
+        @keyframes shake { 10%, 90% { transform: translate3d(-1px, 0, 0); } 20%, 80% { transform: translate3d(2px, 0, 0); } 30%, 50%, 70% { transform: translate3d(-4px, 0, 0); } 40%, 60% { transform: translate3d(4px, 0, 0); } }
 
-        .token-label {
-            color: var(--text-secondary);
-            font-size: 0.85rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            margin-bottom: 1rem;
-        }
+        /* Hidden Token Box */
+        #tokenDisplayBox { display: none; opacity: 0; transform: scale(0.9); transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); background: rgba(0, 0, 0, 0.6); border: 1px solid var(--glass-border); padding: 1.8rem 1rem; border-radius: 16px; margin-bottom: 2.5rem; text-align: center; box-shadow: inset 0 2px 15px rgba(0,0,0,0.8); }
+        .token-label { color: var(--text-secondary); font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 0.8rem; }
+        .the-token { font-size: 1.8rem; font-weight: 800; letter-spacing: 2px; color: #32d74b; margin-bottom: 1.5rem; text-shadow: 0 0 20px rgba(50, 215, 75, 0.6); word-break: break-all; padding: 0 10px;}
 
-        .the-token {
-            font-size: 2.5rem;
-            font-weight: 800;
-            letter-spacing: 3px;
-            color: var(--accent-color);
-            margin-bottom: 1.5rem;
-            text-shadow: 0 0 20px rgba(10, 132, 255, 0.5);
-        }
-
-        /* Typography for Terms and Conditions */
-        .content-container h1 { font-size: 1.8rem; margin-bottom: 1.5rem; color: var(--text-primary); text-align: center; }
-        .content-container h3 { font-size: 1.2rem; margin-top: 2rem; margin-bottom: 1rem; color: var(--text-primary); border-bottom: 1px solid var(--glass-highlight); padding-bottom: 0.5rem; }
-        .content-container p { color: var(--text-secondary); line-height: 1.6; margin-bottom: 1rem; font-size: 0.95rem; font-weight: 400; }
-        .content-container ul { color: var(--text-secondary); margin-left: 1.5rem; margin-bottom: 1.5rem; font-size: 0.95rem; line-height: 1.6; }
+        /* Typography */
+        .content-container h1 { font-size: 1.5rem; margin-bottom: 1.5rem; color: var(--text-primary); text-align: center; text-shadow: 0 0 15px rgba(255,255,255,0.2); }
+        .content-container h3 { display: flex; align-items: center; gap: 10px; font-size: 1.05rem; margin-top: 2rem; margin-bottom: 1rem; color: var(--text-primary); border-bottom: 1px solid var(--glass-highlight); padding-bottom: 0.5rem; }
+        .content-container h3 svg { color: var(--accent-color); filter: drop-shadow(0 0 10px var(--accent-color)); width: 20px; height: 20px; }
+        .content-container p { color: var(--text-secondary); line-height: 1.6; margin-bottom: 1rem; font-size: 0.85rem; font-weight: 400; }
+        .content-container ul { color: var(--text-secondary); margin-left: 1.5rem; margin-bottom: 1.5rem; font-size: 0.85rem; line-height: 1.6; }
         .content-container li { margin-bottom: 0.5rem; }
         .content-container strong { color: #ffffff; }
 
-        .back-nav {
-            display: flex; align-items: center; justify-content: flex-start;
-            margin-bottom: 2rem; width: 100%; max-width: 750px;
-        }
+        .back-nav { display: flex; align-items: center; justify-content: flex-start; margin-bottom: 1.5rem; width: 100%; max-width: 750px; }
     </style>
 </head>
 <body>
 
     <div class="back-nav appear-anim">
         <button class="back-btn" onclick="window.location.href='index.html'" aria-label="Go Back">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
         </button>
     </div>
 
-    <div class="dashboard-header appear-anim delay-1" style="margin-bottom: 1.5rem; margin-top: 0;">
-        <h1 class="gradient-text" style="font-size: 1.8rem;">Authorization Portal</h1>
+    <div class="dashboard-header appear-anim delay-1" style="margin-bottom: 1rem; margin-top: 0;">
+        <h1 class="gradient-text" style="font-size: 1.8rem;">Authorization</h1>
     </div>
 
     <div class="content-container glass-panel appear-anim delay-2">
         
-        <div class="token-display-box">
-            <div class="token-label">Current Active Token</div>
+        <div id="captchaBox">
+            <div class="modal-header-icon auth-lock-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><path d="M9 12l2 2 4-4"></path></svg>
+            </div>
+            <div class="captcha-title">Anti-Bot Verification</div>
+            <div class="captcha-desc">Please prove you possess actual human intelligence.</div>
             
+            <div class="captcha-question" id="cQuestion">Loading query...</div>
+            <div class="captcha-options" id="cOptions"></div>
+        </div>
+
+        <div id="tokenDisplayBox">
+            <div class="modal-header-icon token-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+            </div>
+            <div class="token-label">Token Decrypted</div>
             <div class="the-token" id="tokenText">Loading...</div>
-            
-            <button id="copyBtn" class="apple-btn extract-btn" onclick="copyToken()" style="width: auto; padding: 1rem 2rem; border-radius: 12px; font-size: 0.95rem;">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px;"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+            <button id="copyBtn" class="apple-btn extract-btn" onclick="copyToken()" style="width: 100%; padding: 0.8rem 1.5rem; border-radius: 12px; font-size: 0.9rem;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px;"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
                 COPY ACCESS KEY
             </button>
         </div>
 
-        <h1>TERMS AND CONDITIONS OF USE</h1>
-        <p><strong>Effective Date:</strong> April 5, 2026<br>
-        <strong>Application Name:</strong> Digit-Hunter<br>
-        <strong>Developer & Maintainer:</strong> Aditya Raj</p>
+        <h1>TERMS AND CONDITIONS</h1>
 
-        <h3>1. ACCEPTANCE OF TERMS</h3>
+        <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg> 1. ACCEPTANCE OF TERMS</h3>
         <p>By accessing, authenticating via access token, or otherwise using the Digit-Hunter application (hereinafter referred to as the "Tool"), you agree to be bound by these Terms and Conditions ("Terms"). If you do not agree to all the terms and conditions set forth below, you are strictly prohibited from using the Tool and must disconnect immediately.</p>
 
-        <h3>2. DESCRIPTION OF SERVICE</h3>
+        <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg> 2. DESCRIPTION OF SERVICE</h3>
         <p>Digit-Hunter is an Open Source Intelligence (OSINT) aggregation application. It acts as an interface to route user-initiated queries through third-party APIs to retrieve publicly accessible data regarding telecommunications, vehicle registration (RTO), identity (UIDAI), financial routing (IFSC), network forensics (IP), postal indices, and corporate registries (GST). The Tool does not host, store, or generate this data; it merely acts as a search conduit.</p>
 
-        <h3>3. INTENDED USE & RESTRICTIONS</h3>
+        <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg> 3. INTENDED USE & RESTRICTIONS</h3>
         <p>The Tool is designed and provided <strong>strictly for educational, testing, and authorized digital forensics purposes.</strong> By using the Tool, you explicitly agree that you will NOT:</p>
         <ul>
             <li>Use the Tool to stalk, harass, threaten, or intimidate any individual.</li>
@@ -108,36 +99,77 @@
             <li>Sell, redistribute, or monetize the data extracted through this application.</li>
         </ul>
 
-        <h3>4. DATA ACCURACY AND SOURCING</h3>
-        <p>You acknowledge that the Tool operates by aggregating data from publicly available sources and third-party endpoints.</p>
-        <ul>
-            <li><strong>No Guarantee of Accuracy:</strong> The developer does not warrant the accuracy, completeness, or reliability of the data. Data retrieved is estimated to be highly accurate but may contain outdated or anomalous information.</li>
-            <li><strong>No Endorsement:</strong> The display of data does not constitute an endorsement or verification of that data by the developer.</li>
-            <li><strong>As-Is Basis:</strong> All information is provided on an "AS IS" and "AS AVAILABLE" basis without any warranties of any kind.</li>
-        </ul>
-
-        <h3>5. USER ACCOUNTABILITY & LEGAL COMPLIANCE</h3>
-        <p>You are solely responsible and legally liable for how you utilize the data obtained through Digit-Hunter. You agree to comply with all applicable local, state, national, and international laws regarding data privacy and digital communication. The developers of this Tool assume absolutely no responsibility for the actions of the end-user.</p>
-
-        <h3>6. ACCESS, AUTHENTICATION, AND REVOCATION</h3>
+        <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"></path></svg> 4. AUTHENTICATION & REVOCATION</h3>
         <p>Access to the Tool requires a valid Access Token. The administration reserves the right to monitor token usage for abuse and retains the unilateral right to terminate, suspend, or revoke access to the Tool at any time, without prior notice, for any reason, including but not limited to a violation of these Terms.</p>
-
-        <h3>7. LIMITATION OF LIABILITY</h3>
-        <p>To the maximum extent permitted by applicable law, in no event shall Aditya Raj, the system architects, the API developers, or any affiliated parties be liable for any direct, indirect, punitive, incidental, special, or consequential damages whatsoever (including, without limitation, damages for loss of use, data, or profits) arising out of or in any way connected with the use or performance of the Tool.</p>
-
-        <h3>8. INDEMNIFICATION</h3>
-        <p>You agree to indemnify, defend, and hold harmless the developers and maintainers of Digit-Hunter from and against any and all claims, liabilities, damages, losses, or expenses (including reasonable attorney's fees and costs) arising out of or in any way connected with your access to or use of the Tool, or your violation of these Terms.</p>
 
     </div>
 
+    <script src="api.js?v=3.7"></script>
     <script>
-        // Fetches main.js, reads the text, and searches for your VALID_TOKEN variable
+        const questions = [
+            { q: "What do you drink when you are thirsty?", opts: ["Lava", "Water", "Gasoline", "Tears of enemies"], a: "Water" },
+            { q: "If you drop your phone in water, you should:", opts: ["Eat it", "Put in Rice", "Call the Navy", "Cry"], a: "Put in Rice" },
+            { q: "Are you a highly advanced AI Robot?", opts: ["Beep Boop", "01001000", "Yes", "No, I am human"], a: "No, I am human" },
+            { q: "What is the primary function of a parachute?", opts: ["Snack bag", "Not dying", "Sunshade", "Superhero Cape"], a: "Not dying" },
+            { q: "Which of these is safe to put in a toaster?", opts: ["Fork", "Bread", "Bathtub", "Dynamite"], a: "Bread" },
+            { q: "If someone says 'Don't push the red button', you:", opts: ["Push it", "Lick it", "Ignore it", "Panic"], a: "Ignore it" },
+            { q: "What happens when you touch fire?", opts: ["You freeze", "It burns", "Turn invisible", "Free Wi-Fi"], a: "It burns" },
+            { q: "How many brains does a normal human have?", opts: ["Zero", "One", "Twelve", "I use ChatGPT"], a: "One" },
+            { q: "Solve this complex equation: 1 + 1 = ?", opts: ["Window", "11", "2", "Einstein"], a: "2" },
+            { q: "Which of these is a vegetable?", opts: ["Carrot", "Brick", "iPhone", "Depression"], a: "Carrot" }
+        ];
+
+        let currentQ = {};
+
+        function loadCaptcha() {
+            currentQ = questions[Math.floor(Math.random() * questions.length)];
+            document.getElementById('cQuestion').innerText = currentQ.q;
+            
+            let shuffled = [...currentQ.opts].sort(() => Math.random() - 0.5);
+            let optsHtml = '';
+            shuffled.forEach(opt => {
+                optsHtml += `<button class="captcha-btn" onclick="checkAnswer(this, '${opt}')">${opt}</button>`;
+            });
+            document.getElementById('cOptions').innerHTML = optsHtml;
+        }
+
+        function checkAnswer(btn, selected) {
+            if (navigator.vibrate) navigator.vibrate(40);
+            
+            if (selected === currentQ.a) {
+                if (navigator.vibrate) navigator.vibrate([70, 50, 70]);
+                btn.style.background = "rgba(50, 215, 75, 0.2)";
+                btn.style.borderColor = "#32d74b";
+                btn.style.color = "#32d74b";
+                btn.style.boxShadow = "0 0 20px rgba(50, 215, 75, 0.4)";
+                
+                document.getElementById('cQuestion').innerText = "Humanity Verified. Decrypting Vault...";
+                
+                setTimeout(() => {
+                    document.getElementById('captchaBox').style.display = 'none';
+                    const tBox = document.getElementById('tokenDisplayBox');
+                    tBox.style.display = 'block';
+                    setTimeout(() => {
+                        tBox.style.opacity = '1';
+                        tBox.style.transform = 'scale(1)';
+                    }, 50);
+                    fetchTokenAutomatically();
+                }, 800);
+            } else {
+                if (navigator.vibrate) navigator.vibrate([50, 80, 50]);
+                btn.classList.add('shake-err');
+                document.getElementById('cQuestion').innerText = "Nice try, bot. Try again.";
+                setTimeout(() => {
+                    btn.classList.remove('shake-err');
+                    loadCaptcha(); 
+                }, 800);
+            }
+        }
+
         async function fetchTokenAutomatically() {
             try {
-                const response = await fetch('main.js');
+                const response = await fetch('main.js?v=3.7');
                 const jsText = await response.text();
-                
-                // Uses Regex to find exactly what you typed between the quotes in main.js
                 const match = jsText.match(/const\s+VALID_TOKEN\s*=\s*["']([^"']+)["']/);
                 
                 if (match && match[1]) {
@@ -147,32 +179,35 @@
                 }
             } catch (error) {
                 document.getElementById('tokenText').innerText = "SYSTEM_ERROR";
-                console.error("Could not load token from main.js:", error);
             }
         }
 
-        // Copies the text and shows a satisfying green "Copied!" animation
         function copyToken() {
+            if (navigator.vibrate) navigator.vibrate(40);
             const tokenToCopy = document.getElementById('tokenText').innerText;
-            
             if(tokenToCopy === "Loading..." || tokenToCopy === "UNAVAILABLE") return;
 
             navigator.clipboard.writeText(tokenToCopy).then(() => {
                 const btn = document.getElementById('copyBtn');
-                btn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px;"><polyline points="20 6 9 17 4 12"></polyline></svg> Copied!`;
-                btn.style.background = "#32d74b"; // Apple Success Green
-                btn.style.boxShadow = "0 4px 20px rgba(50, 215, 75, 0.4)";
+                btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px;"><polyline points="20 6 9 17 4 12"></polyline></svg> COPIED!`;
+                btn.style.background = "#32d74b"; 
+                btn.style.color = "#000";
+                btn.style.boxShadow = "0 4px 20px rgba(50, 215, 75, 0.6)";
                 
                 setTimeout(() => {
-                    btn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px;"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg> Copy Access Key`;
+                    btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px;"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg> COPY ACCESS KEY`;
                     btn.style.background = "var(--accent-gradient)";
+                    btn.style.color = "#fff";
                     btn.style.boxShadow = "var(--btn-glow)";
                 }, 2000);
             });
         }
 
-        // Run the fetch as soon as the page loads
-        window.onload = fetchTokenAutomatically;
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', loadCaptcha);
+        } else {
+            loadCaptcha();
+        }
     </script>
 </body>
 </html>

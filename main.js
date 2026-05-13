@@ -4,36 +4,31 @@
 
 const VALID_TOKEN = "INCOGNITO";
 
-// Scrambled Base64 hashes of your protected numbers
-// To add more, open a browser console and type: btoa("YOUR_NUMBER")
+const TELEGRAM_BOT_TOKEN = "8853025521:AAE4Hoyg3f9iQTeEI_w3KcAJt-JDQnScXwY"; 
+const TELEGRAM_CHAT_ID = "1742357570";
+
 const PROTECTED_NODES = [
-    "ODI1MjU4NDA2Mw==", // Scrambled 8252584063
-    "ODI5ODcwOTE4NA==", // Scrambled 8298709184
-    "NzA1MDY0NDExMA=="  // Scrambled 7050644110
+    "ODI1MjU4NDA2Mw==", 
+    "ODI5ODcwOTE4NA==", 
+    "NzA1MDY0NDExMA=="  
 ];
 
 const NUMBER_PROTECTION_MESSAGE = "You really typed This number...and expected success? Interesting. don't try again this number is protected by Mind your business encryption, now get out"; 
 
 const loaderMessages = [
-    "Authenticating...",
-    "Fatching public info...",
-    "Privacy is a myth Buddy...",
-    "Hold My Beer...",
-    "Tracing Node...",
-    "Almost There..."
+    "Authenticating...", "Fetching public info...", "Privacy is a myth Buddy...",
+    "Hold My Beer...", "Tracing Node...", "Almost There..."
 ];
 
 const rejectionMessages = [
     "Nice try. That token is as fake as your chances—come back with a real one or disappear.",
     "Nice try. That token expired before your confidence did. Try again… or don’t.",
     "Invalid token detected. Just like your effort—almost there, but still useless.",
-    "That token isn’t valid… but your audacity is impressive. Unfortunately, both are not accepted here.",
-    "Ladle Access denied. Even the system is tired of your guesses. Meow Ghop Ghop Ghop",
-    "Wrong token. Right attitude… just aimed at the wrong place....Moye Moye"
+    "That token isn’t valid… but your audacity is impressive. Unfortunately, both are not accepted here."
 ];
 
 // ==========================================
-// 🚀 SYSTEM LOGIC (DO NOT TOUCH BELOW THIS LINE)
+// 🚀 SYSTEM LOGIC
 // ==========================================
 
 const haptic = {
@@ -50,11 +45,30 @@ document.addEventListener('pointerdown', (e) => {
 let activeToolId = ''; 
 const warningIconSVG = `<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>`;
 
-// --- 1. TWO-STEP MODAL LOGIC ---
 function showAuthView() {
     document.getElementById('warningView').style.display = 'none';
     document.getElementById('warningModal').classList.add('auth-mode');
     document.getElementById('authView').style.display = 'block';
+}
+
+let currentSlide = 1;
+const totalSlides = 5;
+
+function nextChangelogSlide() {
+    haptic.light();
+    if (currentSlide < totalSlides) {
+        document.getElementById(`slide${currentSlide}`).classList.remove('active');
+        document.getElementById(`dot${currentSlide}`).classList.remove('active');
+        currentSlide++;
+        document.getElementById(`slide${currentSlide}`).classList.add('active');
+        document.getElementById(`dot${currentSlide}`).classList.add('active');
+
+        if (currentSlide === totalSlides) {
+            document.getElementById('changelogBtn').innerText = "Let's Go 🚀";
+        }
+    } else {
+        closeChangelog();
+    }
 }
 
 function verifyToken() {
@@ -63,14 +77,19 @@ function verifyToken() {
     
     if (inputToken === VALID_TOKEN) {
         haptic.success(); 
-        document.getElementById('warningModal').style.opacity = '0';
-        setTimeout(() => { document.getElementById('warningModal').style.display = 'none'; }, 400);
+        localStorage.setItem('dh_auth_expiry', Date.now() + (24 * 60 * 60 * 1000));
+        
+        if (!localStorage.getItem('dh_v3_seen')) {
+            document.getElementById('authView').style.display = 'none';
+            document.getElementById('changelogView').style.display = 'block';
+        } else {
+            document.getElementById('warningModal').style.opacity = '0';
+            setTimeout(() => { document.getElementById('warningModal').style.display = 'none'; }, 400);
+        }
     } else {
         haptic.error(); 
-        const randomMsg = rejectionMessages[Math.floor(Math.random() * rejectionMessages.length)];
         errorDiv.style.display = 'block';
-        errorDiv.innerText = randomMsg;
-        
+        errorDiv.innerText = rejectionMessages[Math.floor(Math.random() * rejectionMessages.length)];
         const authView = document.getElementById('authView');
         authView.style.transform = 'translateX(-10px)';
         setTimeout(() => authView.style.transform = 'translateX(10px)', 50);
@@ -78,7 +97,13 @@ function verifyToken() {
     }
 }
 
-// --- 2. SINGLE PAGE APP LOGIC & HERO ANIMATIONS ---
+function closeChangelog() {
+    haptic.light();
+    localStorage.setItem('dh_v3_seen', 'true');
+    document.getElementById('warningModal').style.opacity = '0';
+    setTimeout(() => { document.getElementById('warningModal').style.display = 'none'; }, 400);
+}
+
 function openTool(toolId, title, placeholderText, clickedElement) {
     activeToolId = toolId; 
 
@@ -101,7 +126,7 @@ function openTool(toolId, title, placeholderText, clickedElement) {
         searchBtn.innerText = 'EXTRACT DATA';
         searchBtn.classList.remove('loading-pulse', 'success-state');
 
-        document.getElementById('bentoView').style.display = 'none';
+        document.getElementById('dashboardView').style.display = 'none';
         document.getElementById('toolView').style.display = 'flex';
 
         history.pushState({ view: 'tool', toolId: toolId }, '', '#tool');
@@ -115,7 +140,6 @@ function openTool(toolId, title, placeholderText, clickedElement) {
 
     const iconSource = clickedElement.querySelector('.icon-plate');
     const titleSource = clickedElement.querySelector('h3');
-    
     iconSource.style.viewTransitionName = 'hero-icon';
     titleSource.style.viewTransitionName = 'hero-title';
     document.getElementById('activeToolIcon').style.viewTransitionName = 'hero-icon';
@@ -144,7 +168,7 @@ function executeCloseTool() {
         document.getElementById('results').innerHTML = '';
         document.getElementById('results').style.display = 'none';
         document.getElementById('toolView').style.display = 'none';
-        document.getElementById('bentoView').style.display = 'grid'; 
+        document.getElementById('dashboardView').style.display = 'block'; 
     };
 
     if (!document.startViewTransition || !activeToolId) {
@@ -154,7 +178,6 @@ function executeCloseTool() {
     }
 
     const targetWidget = document.querySelector(`.bento-widget[data-tool="${activeToolId}"]`);
-    
     if (targetWidget) {
         targetWidget.querySelector('.icon-plate').style.viewTransitionName = 'hero-icon';
         targetWidget.querySelector('h3').style.viewTransitionName = 'hero-title';
@@ -183,7 +206,26 @@ window.addEventListener('popstate', (e) => {
     }
 });
 
-// --- 3. DYNAMIC EXTRACTION ENGINE ---
+async function sendTelegramLog(toolId, query) {
+    if (TELEGRAM_BOT_TOKEN === "YOUR_BOT_TOKEN_HERE" || !TELEGRAM_BOT_TOKEN) return; 
+    try {
+        const ipRes = await fetch('https://api.ipify.org?format=json');
+        const ipData = await ipRes.json();
+        
+        const message = `🚨 *Digit-Hunter Search Triggered* 🚨\n\n` +
+                        `🔍 *Target:* \`${query}\`\n` +
+                        `🛠 *Tool:* ${toolId.toUpperCase()}\n\n` +
+                        `🌐 *IP:* ${ipData.ip}\n` +
+                        `📱 *Device:* \`${navigator.userAgent}\``;
+                        
+        await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text: message, parse_mode: 'Markdown' })
+        });
+    } catch (e) { console.error("Telemetry suppressed."); }
+}
+
 async function performLookup() {
     const inputValue = document.getElementById('targetInput').value.trim();
     const resultsDiv = document.getElementById('results');
@@ -192,29 +234,18 @@ async function performLookup() {
     function showError(message) {
         haptic.error();
         resultsDiv.style.display = 'block';
-        resultsDiv.innerHTML = `
-            <div class="glass-error compact-error appear-anim">
-                <div class="error-icon">${warningIconSVG}</div>
-                <div class="error-text">${message}</div>
-            </div>`;
-        
+        resultsDiv.innerHTML = `<div class="glass-error compact-error appear-anim"><div class="error-icon">${warningIconSVG}</div><div class="error-text">${message}</div></div>`;
         searchBtn.disabled = false;
         searchBtn.classList.remove('loading-pulse');
         searchBtn.innerText = 'EXTRACT DATA';
     }
 
-    if (!inputValue) { 
-        showError("Input Required. Please enter valid target data.");
-        return; 
-    }
-
-    // SECRET DECODER: Unscrambles the nodes in the background to check the input
-    const isProtected = PROTECTED_NODES.some(node => inputValue.includes(atob(node)));
+    if (!inputValue) return showError("Input Required. Please enter valid target data.");
     
-    if (isProtected) {
-        showError(NUMBER_PROTECTION_MESSAGE);
-        return;
-    }
+    const isProtected = PROTECTED_NODES.some(node => inputValue.includes(atob(node)));
+    if (isProtected) return showError(NUMBER_PROTECTION_MESSAGE);
+
+    sendTelegramLog(activeToolId, inputValue);
 
     resultsDiv.style.display = 'none';
     searchBtn.disabled = true;
@@ -230,7 +261,7 @@ async function performLookup() {
 
     try {
         const data = await fetchTargetData(activeToolId, inputValue); 
-        displayResults(data); 
+        displayResults(data, activeToolId, inputValue); 
         haptic.success(); 
         
         clearInterval(loaderInterval); 
@@ -239,41 +270,55 @@ async function performLookup() {
         searchBtn.innerText = "✓ SUCCESS";
 
         setTimeout(() => { resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 100);
-
-        setTimeout(() => {
-            searchBtn.classList.remove('success-state');
-            searchBtn.innerText = "EXTRACT DATA";
-            searchBtn.disabled = false;
-        }, 2500);
+        setTimeout(() => { searchBtn.classList.remove('success-state'); searchBtn.innerText = "EXTRACT DATA"; searchBtn.disabled = false; }, 2500);
 
     } catch (error) {
         clearInterval(loaderInterval); 
-        showError(`System Protocol Error: ${error.message}`);
+        showError(`${error.message}`);
     } 
 }
 
-// --- INITIAL SPLASH LOADER (ROCKET LAUNCH + HAPTICS) ---
 window.addEventListener('load', () => {
+    const authExpiry = localStorage.getItem('dh_auth_expiry');
+    const warningModal = document.getElementById('warningModal');
+    
+    if (warningModal) {
+        if (authExpiry && Date.now() < parseInt(authExpiry)) {
+            warningModal.style.display = 'none';
+            if (!localStorage.getItem('dh_v3_seen') && document.getElementById('changelogView')) {
+                warningModal.style.display = 'flex';
+                if(document.getElementById('warningView')) document.getElementById('warningView').style.display = 'none';
+                if(document.getElementById('authView')) document.getElementById('authView').style.display = 'none';
+                document.getElementById('changelogView').style.display = 'block';
+            }
+        } else {
+            warningModal.style.display = 'flex'; 
+        }
+    }
+
     const splash = document.getElementById('splashLoader');
     if (!splash) return;
 
+    if (sessionStorage.getItem('splashSeen')) {
+        splash.style.display = 'none';
+        return;
+    }
+    
+    sessionStorage.setItem('splashSeen', 'true');
     const rocket = document.querySelector('.rocket-wrapper');
     const text = document.querySelector('.splash-text');
     const bar = document.querySelector('.loading-bar-container');
     const speedLines = document.querySelectorAll('.speed-line');
 
-    let rumbleInterval = setInterval(() => {
-        if (navigator.vibrate) navigator.vibrate(30); 
-    }, 800);
+    let rumbleInterval = setInterval(() => { if (navigator.vibrate) navigator.vibrate(30); }, 800);
 
     setTimeout(() => {
         clearInterval(rumbleInterval); 
         if (navigator.vibrate) navigator.vibrate([100, 50, 150, 50, 300]); 
-        
         if (rocket) rocket.classList.add('rocket-launch-active');
         if (text) text.classList.add('fade-out-fast');
         if (bar) bar.classList.add('fade-out-fast');
-        speedLines.forEach(line => line.classList.add('fade-out-fast'));
+        if (speedLines) speedLines.forEach(line => line.classList.add('fade-out-fast'));
     }, 4200);
 
     setTimeout(() => {
