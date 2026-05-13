@@ -3,7 +3,15 @@
 // ==========================================
 
 const VALID_TOKEN = "INCOGNITO";
-const BLOCKED_NUMBERS = ["8252584063", "8298709184" , "7050644110"];
+
+// Scrambled Base64 hashes of your protected numbers
+// To add more, open a browser console and type: btoa("YOUR_NUMBER")
+const PROTECTED_NODES = [
+    "ODI1MjU4NDA2Mw==", // Scrambled 8252584063
+    "ODI5ODcwOTE4NA==", // Scrambled 8298709184
+    "NzA1MDY0NDExMA=="  // Scrambled 7050644110
+];
+
 const NUMBER_PROTECTION_MESSAGE = "You really typed This number...and expected success? Interesting. don't try again this number is protected by Mind your business encryption, now get out"; 
 
 const loaderMessages = [
@@ -200,7 +208,10 @@ async function performLookup() {
         return; 
     }
 
-    if (BLOCKED_NUMBERS.some(num => inputValue.includes(num))) {
+    // SECRET DECODER: Unscrambles the nodes in the background to check the input
+    const isProtected = PROTECTED_NODES.some(node => inputValue.includes(atob(node)));
+    
+    if (isProtected) {
         showError(NUMBER_PROTECTION_MESSAGE);
         return;
     }
@@ -215,7 +226,7 @@ async function performLookup() {
     const loaderInterval = setInterval(() => {
         msgIndex = (msgIndex + 1) % loaderMessages.length;
         searchBtn.innerText = loaderMessages[msgIndex];
-    }, 1500); // Faster pulse for dynamic button
+    }, 1500); 
 
     try {
         const data = await fetchTargetData(activeToolId, inputValue); 
