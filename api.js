@@ -31,21 +31,19 @@ function displayResults(data, toolId, inputValue) {
     function parseData(obj, container) {
         for (const [key, value] of Object.entries(obj)) {
             const kStr = key.toLowerCase();
-            const vStr = (typeof value === 'string') ? value.trim() : '';
+            let vStr = (typeof value === 'string') ? value.trim() : String(value);
             const vStrLow = vStr.toLowerCase();
             
             if (kStr.includes('developer') || kStr.includes('proportalx') || vStrLow.includes('@proportalx') || kStr.includes('channel') || vStrLow === '@') continue;
 
-            const isNumericKey = !isNaN(key) && parseInt(key) >= 0;
-            const fKey = isNumericKey ? `RECORD ${parseInt(key) + 1}` : key.replace(/([A-Z])/g, ' $1').toUpperCase().replace(/_/g, ' ');
-            
             if (value !== null && typeof value === 'object') {
                 const fDiv = document.createElement('div');
                 fDiv.className = 'nested-folder'; 
                 fDiv.style.animationDelay = `${delay}s`;
                 delay += 0.05;
                 
-                fDiv.innerHTML = `<div class="folder-title">${fKey}</div>`;
+                const folderName = key.replace(/([A-Z])/g, ' $1').toUpperCase().replace(/_/g, ' ');
+                fDiv.innerHTML = `<div class="folder-title">${folderName}</div>`;
                 
                 const sGrid = document.createElement('div');
                 sGrid.className = 'bento-container';
@@ -53,24 +51,40 @@ function displayResults(data, toolId, inputValue) {
                 fDiv.appendChild(sGrid);
                 container.appendChild(fDiv);
             } else {
-                const isLong = vStr.length > 25 || kStr.includes('address') || kStr.includes('location') || kStr.includes('msg') || kStr.includes('desc') || kStr.includes('name') || kStr.includes('email');
+                
+                const isNumericKey = !isNaN(key) && parseInt(key) >= 0;
+                let fKey = key.replace(/([A-Z])/g, ' $1').toUpperCase().replace(/_/g, ' ');
+                let finalValue = (value !== null && value !== '') ? value : 'N/A';
+
+                // ✨ SMART PARSER: Automatically splits array strings like "Full Name: Aditya" into Title and Value
+                if (isNumericKey && typeof value === 'string' && value.includes(':')) {
+                    const parts = value.split(':');
+                    fKey = parts.shift().trim().toUpperCase(); 
+                    finalValue = parts.join(':').trim(); 
+                } else if (isNumericKey) {
+                    fKey = `RECORD ${parseInt(key) + 1}`;
+                }
+
+                const searchString = (fKey + " " + finalValue).toLowerCase();
+                const isLong = finalValue.length > 25 || searchString.includes('address') || searchString.includes('location') || searchString.includes('msg') || searchString.includes('desc') || searchString.includes('name') || searchString.includes('email');
                 const spanClass = isLong ? 'span-2' : '';
                 
-                let svgIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>`; 
+                // ✨ INTELLIGENT ICON ROUTING: Scans the final parsed text to assign the perfect icon
+                let svgIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>`; // Default Info
                 
-                if(kStr.includes('name') || kStr.includes('father') || kStr.includes('owner')) {
+                if (searchString.includes('name') || searchString.includes('father') || searchString.includes('owner') || searchString.includes('gender')) {
                     svgIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>`;
-                } else if(kStr.includes('address') || kStr.includes('loc') || kStr.includes('circle') || kStr.includes('city') || kStr.includes('state') || kStr.includes('pin')) {
+                } else if (searchString.includes('address') || searchString.includes('loc') || searchString.includes('city') || searchString.includes('state') || searchString.includes('pin') || searchString.includes('region') || searchString.includes('area')) {
                     svgIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>`;
-                } else if(kStr.includes('phone') || kStr.includes('mobile') || kStr.includes('num')) {
+                } else if (searchString.includes('phone') || searchString.includes('mobile') || searchString.includes('num') || searchString.includes('sim') || searchString.includes('tele')) {
                     svgIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>`;
-                } else if(kStr.includes('id') || kStr.includes('code') || kStr.includes('gst')) {
+                } else if (searchString.includes('id') || searchString.includes('code') || searchString.includes('gst') || searchString.includes('passport') || searchString.includes('aadhar') || searchString.includes('pan')) {
                     svgIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>`;
-                } else if(kStr.includes('date') || kStr.includes('time') || kStr.includes('year')) {
-                    svgIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>`;
-                } else if(kStr.includes('bank') || kStr.includes('ifsc')) {
-                    svgIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>`;
-                } else if(kStr.includes('email') || kStr.includes('mail')) {
+                } else if (searchString.includes('date') || searchString.includes('time') || searchString.includes('year') || searchString.includes('dob')) {
+                    svgIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>`;
+                } else if (searchString.includes('bank') || searchString.includes('ifsc') || searchString.includes('account')) {
+                    svgIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>`;
+                } else if (searchString.includes('email') || searchString.includes('mail')) {
                     svgIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>`;
                 }
 
@@ -83,7 +97,7 @@ function displayResults(data, toolId, inputValue) {
                     <div class="icon-plate glow-icon">${svgIcon}</div>
                     <div class="widget-text">
                         <h3>${fKey}</h3>
-                        <p class="result-value">${(value !== null && value !== '') ? value : 'N/A'}</p>
+                        <p class="result-value">${finalValue}</p>
                     </div>
                 `;
                 container.appendChild(card);
