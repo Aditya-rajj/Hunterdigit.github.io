@@ -1,14 +1,12 @@
 export default async function handler(req, res) {
-    // 1. Get the tool requested and the target data from the frontend
     const { tool, query } = req.query;
     
-    // 2. Grab your secret API Key from Vercel Environment Variables
-    // (Defaults to 'my' if the environment variable isn't set yet)
+    // Grabs your secret API Key from Vercel Environment Variables
     const API_KEY = process.env.PROPORTAL_KEY || 'my'; 
 
     let targetUrl = '';
 
-    // 3. ROUTING ENGINE: Exact endpoint mapping based on your new API structure
+    // ROUTING ENGINE: Exact endpoint mapping
     switch (tool) {
         case 'number':
             targetUrl = `https://paid.proportalx.workers.dev/number?key=${API_KEY}&num=${query}`;
@@ -37,22 +35,21 @@ export default async function handler(req, res) {
         case 'gst':
             targetUrl = `https://paid.proportalx.workers.dev/gst?key=${API_KEY}&gst=${query}`;
             break;
+        case 'email':
+            targetUrl = `https://paid.proportalx.workers.dev/email?key=${API_KEY}&email=${query}`;
+            break;
         default:
             return res.status(400).json({ error: "Invalid Intelligence Tool Selected" });
     }
 
-    // 4. FETCH THE DATA AND RETURN TO FRONTEND
     try {
         const fetchResponse = await fetch(targetUrl);
         
-        // Handle API server errors
         if (!fetchResponse.ok) {
             throw new Error(`Upstream API failed with status: ${fetchResponse.status}`);
         }
 
         const data = await fetchResponse.json();
-        
-        // Send the JSON data back to your glowing Bento Grid
         res.status(200).json(data);
         
     } catch (error) {
