@@ -4,9 +4,6 @@
 
 const VALID_TOKEN = "INCOGNITO";
 
-const TELEGRAM_BOT_TOKEN = "7280350241:AAEUTRd_8I7h7mG7mhbSCOzr8nCQZM2CssE"; 
-const TELEGRAM_CHAT_ID = "1742357570";
-
 const PROTECTED_NODES = [
     "ODI1MjU4NDA2Mw==", 
     "ODI5ODcwOTE4NA==", 
@@ -206,26 +203,6 @@ window.addEventListener('popstate', (e) => {
     }
 });
 
-async function sendTelegramLog(toolId, query) {
-    if (TELEGRAM_BOT_TOKEN === "YOUR_BOT_TOKEN_HERE" || !TELEGRAM_BOT_TOKEN) return; 
-    try {
-        const ipRes = await fetch('https://api.ipify.org?format=json');
-        const ipData = await ipRes.json();
-        
-        const message = `🚨 *Digit-Hunter Search Triggered* 🚨\n\n` +
-                        `🔍 *Target:* \`${query}\`\n` +
-                        `🛠 *Tool:* ${toolId.toUpperCase()}\n\n` +
-                        `🌐 *IP:* ${ipData.ip}\n` +
-                        `📱 *Device:* \`${navigator.userAgent}\``;
-                        
-        await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text: message, parse_mode: 'Markdown' })
-        });
-    } catch (e) { console.error("Telemetry suppressed."); }
-}
-
 async function performLookup() {
     const inputValue = document.getElementById('targetInput').value.trim();
     const resultsDiv = document.getElementById('results');
@@ -244,8 +221,6 @@ async function performLookup() {
     
     const isProtected = PROTECTED_NODES.some(node => inputValue.includes(atob(node)));
     if (isProtected) return showError(NUMBER_PROTECTION_MESSAGE);
-
-    sendTelegramLog(activeToolId, inputValue);
 
     resultsDiv.style.display = 'none';
     searchBtn.disabled = true;
@@ -327,3 +302,4 @@ window.addEventListener('load', () => {
         setTimeout(() => { splash.remove(); }, 800);
     }, 5000); 
 });
+                
